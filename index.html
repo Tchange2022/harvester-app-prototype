@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>特查恩采收机器人 App · 产品原型</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  :root{
+    --green:#1F7A4D; --green-d:#165c3a; --green-l:#E8F5EE; --ink:#222; --gray:#6b7280;
+    --line:#eef0f2; --orange:#F59E0B; --red:#DC2626; --bg:#f5f7f6;
+  }
+  html,body{height:100%;}
+  body{
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:#dfe5e2; color:var(--ink);
+    display:flex; align-items:center; justify-content:center;
+  }
+  /* 390 x 844 iPhone 14 */
+  #phone{
+    position:relative; width:390px; height:844px; background:#fff; overflow:hidden;
+    border-radius:0; box-shadow:0 20px 60px rgba(0,0,0,.25);
+    display:flex; flex-direction:column;
+  }
+  @media(min-width:430px){ #phone{border-radius:36px; height:820px;} }
+  body.shot{background:#fff;}
+  body.shot #phone{width:100%;height:100%;border-radius:0;box-shadow:none;}
+  .screen{position:absolute; inset:0; display:none; flex-direction:column; background:var(--bg);}
+  .screen.active{display:flex;}
+
+  /* 状态栏 */
+  .statusbar{height:44px; background:var(--green); color:#fff; display:flex; align-items:center;
+    justify-content:space-between; padding:0 20px; font-size:13px; font-weight:600; flex:none;}
+  .appbar{background:var(--green); color:#fff; padding:8px 16px 14px; display:flex; align-items:center; gap:10px; flex:none;}
+  .appbar .back{font-size:22px; width:28px; text-align:center; cursor:pointer;}
+  .appbar h1{font-size:19px; font-weight:700;}
+  .appbar .sp{flex:1}
+  .appbar .bell{font-size:20px; position:relative; cursor:pointer;}
+  .appbar .bell i{position:absolute; right:-2px; top:-3px; width:9px; height:9px; background:var(--red);
+    border-radius:50%; border:1.5px solid var(--green);}
+
+  .body{flex:1; overflow-y:auto; padding:14px;}
+  .hello{padding:6px 4px 10px;}
+  .hello h2{font-size:21px;}
+  .hello p{color:var(--gray); font-size:13px; margin-top:3px;}
+
+  .card{background:#fff; border-radius:16px; padding:16px; margin-bottom:14px;
+    box-shadow:0 2px 10px rgba(31,122,77,.06);}
+  .dev-top{display:flex; align-items:center; gap:10px;}
+  .dot{width:10px;height:10px;border-radius:50%;background:#22c55e; box-shadow:0 0 0 4px rgba(34,197,94,.18);}
+  .dev-name{font-size:17px;font-weight:700;}
+  .dev-sub{font-size:12.5px;color:var(--gray); margin-top:2px;}
+  .batt{margin-left:auto; text-align:right; font-size:13px;color:var(--gray);}
+  .batt b{display:block;font-size:20px;color:var(--green);}
+  .stats{display:flex; gap:10px; margin-top:14px;}
+  .stat{flex:1; background:var(--green-l); border-radius:12px; padding:10px 8px; text-align:center;}
+  .stat b{display:block;font-size:20px;color:var(--green-d);}
+  .stat span{font-size:11.5px;color:var(--gray);}
+
+  .btn{border:none; cursor:pointer; font-family:inherit; font-weight:700; border-radius:14px;}
+  .btn-primary{background:var(--green); color:#fff; font-size:18px; padding:16px; width:100%;}
+  .btn-primary:active{background:var(--green-d);}
+  .btn-ghost{background:#fff;color:var(--green);border:1.5px solid var(--green);font-size:15px;padding:11px;}
+  .row2{display:flex;gap:12px;}
+  .row2 .btn{flex:1}
+
+  .sec-title{font-size:14px;font-weight:700; margin:6px 2px 8px; display:flex; justify-content:space-between; align-items:center;}
+  .sec-title span{font-size:12px;color:var(--gray); font-weight:400; cursor:pointer;}
+  .task-item{display:flex; align-items:center; gap:12px; padding:12px 4px; border-bottom:1px solid var(--line);}
+  .task-item:last-child{border-bottom:none;}
+  .tag{width:42px;height:42px;border-radius:12px;background:var(--green-l);display:flex;align-items:center;justify-content:center;font-size:20px;flex:none;}
+  .task-item .ti-main{flex:1;}
+  .task-item b{font-size:14.5px; display:block;}
+  .task-item small{color:var(--gray);font-size:12px;}
+  .ok{color:#16a34a;font-size:12px;font-weight:700;}
+
+  /* tabbar */
+  .tabbar{flex:none; height:74px; background:#fff; border-top:1px solid var(--line);
+    display:flex; padding-bottom:8px;}
+  .tab{flex:1; border:none; background:none; font-family:inherit; font-size:11px; color:#9aa1a6;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; cursor:pointer;}
+  .tab .ic{font-size:21px;}
+  .tab.active{color:var(--green); font-weight:700;}
+
+  /* P2 */
+  .field{display:flex;align-items:center;gap:12px;}
+  .field .map{width:46px;height:46px;border-radius:12px;background:var(--green-l);
+    display:flex;align-items:center;justify-content:center;font-size:22px;flex:none;}
+  .field b{font-size:15.5px;}
+  .field small{display:block;color:var(--gray);font-size:12.5px;margin-top:2px;}
+  .field .arr{color:#bbb;font-size:18px;}
+  .seg{display:flex;background:#f1f3f2;border-radius:12px;padding:4px;gap:4px;}
+  .seg button{flex:1;border:none;background:transparent;font-family:inherit;font-size:14.5px;padding:#6b7280;
+    padding:10px 0;border-radius:9px;cursor:pointer;font-weight:600;}
+  .seg button.on{background:#fff;color:var(--green-d);font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .check{display:flex;align-items:center;gap:10px;font-size:14px;padding:9px 2px;color:#333;}
+  .check .g{color:#16a34a;font-size:16px;font-weight:700;}
+  .label{font-size:13.5px;font-weight:700;margin:12px 2px 8px;}
+  .footer-btn{padding:12px 14px 20px; flex:none;}
+
+  /* P3 */
+  #p3 .body{padding:0;}
+  .cam{position:relative;height:300px;background:linear-gradient(160deg,#143022,#2d5240 55%,#3c6b4f); overflow:hidden;}
+  .cam .leaf{position:absolute;border-radius:50%;background:radial-gradient(circle at 35% 30%,#e85a4f,#b73a2e);
+    box-shadow:0 0 0 3px rgba(255,255,255,.85);}
+  .cam .leaf em{position:absolute;left:50%;top:-20px;transform:translateX(-50%);font-size:11px;
+    background:rgba(0,0,0,.6);color:#fff;padding:1px 6px;border-radius:8px;white-space:nowrap;}
+  .cam .scan{position:absolute;left:0;right:0;top:0;bottom:0;
+    background:repeating-linear-gradient(0deg, transparent 0 38px, rgba(255,255,255,.06) 38px 40px);}
+  .cam .live{position:absolute;top:12px;left:12px;background:rgba(0,0,0,.45);color:#fff;
+    font-size:11px;padding:3px 8px;border-radius:8px;display:flex;gap:6px;align-items:center;}
+  .cam .live::before{content:'';width:7px;height:7px;border-radius:50%;background:#ef4444;}
+  .alert{margin:12px 12px 0;background:#fff7e8;border:1px solid #fde6b0;color:#b45309;
+    border-radius:12px;padding:10px 12px;font-size:12.5px;display:flex;gap:8px;align-items:flex-start;}
+  .p3-stats{display:flex;gap:8px;padding:12px 12px 0;}
+  .p3-stats .stat b{font-size:17px;}
+  .p3-stats .stat span{font-size:11px;}
+  .ctl{display:flex;justify-content:center;gap:22px;padding:10px 14px 16px;}
+  .ctl button{width:68px;height:68px;border-radius:50%;border:none;cursor:pointer;
+    font-family:inherit;font-size:12px;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;}
+  .ctl .pause{background:#fff;color:#92600a;border:2px solid #fde6b0;}
+  .ctl .stop{background:var(--red);color:#fff;width:80px;height:80px;font-size:27px;}
+  .ctl .voice{background:#fff;color:var(--green-d);border:2px solid var(--green);}
+
+  /* P4 */
+  .tabs-line{display:flex;gap:18px;padding:2px 4px 10px;font-size:14px;color:var(--gray);}
+  .tabs-line b{color:var(--ink);border-bottom:2.5px solid var(--green);padding-bottom:6px;}
+  .grid4{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+  .mini{background:#fff;border-radius:14px;padding:13px 14px;box-shadow:0 2px 10px rgba(31,122,77,.06);}
+  .mini b{font-size:21px;color:var(--green-d);}
+  .mini span{display:block;font-size:12px;color:var(--gray);margin-top:2px;}
+  .bars{display:flex;align-items:flex-end;gap:10px;height:120px;padding:8px 6px 0;}
+  .bars i{flex:1;background:var(--green-l);border-radius:6px 6px 0 0;position:relative;}
+  .bars i.on{background:var(--green);}
+  .bars i em{position:absolute;top:-20px;left:0;right:0;text-align:center;font-style:normal;font-size:10px;color:var(--gray);}
+  .bars-x{display:flex;gap:0;margin-top:6px;}
+  .bars-x span{flex:1;text-align:center;font-size:10.5px;color:var(--gray);}
+  .save b{font-size:22px;color:var(--green-d);}
+  .save .big{font-size:26px;}
+
+  /* P5 */
+  #p5 .body{background:#f7f8f8;}
+  .chat{padding:14px;}
+  .bubble{max-width:82%;padding:11px 14px;border-radius:14px;font-size:14px;line-height:1.55;margin-bottom:10px;}
+  .b-ai{background:#fff;border-top-left-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+  .b-me{background:var(--green);color:#fff;margin-left:auto;border-top-right-radius:4px;}
+  .b-me{margin-left:auto;}
+  .reply-card{background:#fff;border-radius:14px;border-top-left-radius:4px;padding:13px 14px;font-size:13.5px;
+    line-height:1.7; box-shadow:0 2px 8px rgba(0,0,0,.05); margin-bottom:10px;max-width:86%;}
+  .reply-card .rh{color:var(--green-d);font-weight:700;margin-bottom:4px;}
+  .to-human{border:1px solid var(--green);background:#fff;color:var(--green-d);
+    border-radius:10px;font-size:13px;font-weight:700;padding:8px 12px;font-family:inherit;cursor:pointer;margin-top:6px;}
+  .composer{flex:none;background:#fff;border-top:1px solid var(--line);padding:10px 12px 16px;
+    display:flex;align-items:center;gap:10px;}
+  .composer input{flex:1;border:none;font-family:inherit;font-size:14px;background:#f3f4f3;border-radius:20px;padding:11px 14px;outline:none;}
+  .composer .ic-btn{font-size:20px;cursor:pointer;}
+  .powered{text-align:center;font-size:10.5px;color:#9aa1a6;padding:2px 0 8px;}
+
+  .toast{position:absolute;left:50%;bottom:96px;transform:translateX(-50%);background:rgba(0,0,0,.8);
+    color:#fff;font-size:13px;padding:9px 16px;border-radius:20px;opacity:0;pointer-events:none;transition:.25s;z-index:50;white-space:nowrap;}
+  .toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div id="phone">
+
+  <!-- P1 首页 -->
+  <section class="screen active" id="p1">
+    <div class="statusbar"><span>9:41</span><span>特查恩农机</span><span>100%</span></div>
+    <div class="appbar" style="padding-bottom:8px">
+      <h1 style="font-size:20px">特查恩云控</h1><div class="sp"></div>
+      <div class="bell">🔔<i></i></div>
+    </div>
+    <div class="body">
+      <div class="hello">
+        <h2>下午好，张师傅 👋</h2>
+        <p>今天适合采收，2号棚番茄成熟度良好</p>
+      </div>
+      <div class="card">
+        <div class="dev-top">
+          <span class="dot"></span>
+          <div><div class="dev-name">特查恩-03</div><div class="dev-sub">在线 · 2号棚附近</div></div>
+          <div class="batt"><b>82%</b>电量</div>
+        </div>
+        <div class="stats">
+          <div class="stat"><b>126</b><span>今日已采(个)</span></div>
+          <div class="stat"><b>2.3</b><span>作业(亩)</span></div>
+          <div class="stat"><b>正常</b><span>状态</span></div>
+        </div>
+      </div>
+      <div class="row2" style="margin-bottom:14px">
+        <button class="btn btn-primary" onclick="go('p2')">开始采收</button>
+        <button class="btn btn-ghost" onclick="toast('正在呼叫特查恩-03，请留意设备蜂鸣')">找设备</button>
+      </div>
+      <div class="card">
+        <div class="sec-title">今日任务 <span onclick="toast('查看全部任务')">全部 ›</span></div>
+        <div class="task-item">
+          <div class="tag">🍅</div>
+          <div class="ti-main"><b>2号棚 · 采收任务</b><small>红果 · 标准速度 · 已完成</small></div>
+          <span class="ok">已完成</span>
+        </div>
+        <div class="task-item">
+          <div class="tag">📍</div>
+          <div class="ti-main"><b>3号棚 · 巡垄任务</b><small>计划 16:00 开始</small></div>
+          <span style="color:#b45309;font-size:12px;font-weight:700">待开始</span>
+        </div>
+      </div>
+    </div>
+    <div class="tabbar">
+      <button class="tab active"><span class="ic">🏠</span>首页</button>
+      <button class="tab" onclick="go('p2')"><span class="ic">📋</span>任务</button>
+      <button class="tab" onclick="go('p4')"><span class="ic">📊</span>数据</button>
+      <button class="tab" onclick="go('p5')"><span class="ic">🤖</span>AI助手</button>
+      <button class="tab" onclick="toast('作品集演示版：未设计该页')"><span class="ic">👤</span>我的</button>
+    </div>
+  </section>
+
+  <!-- P2 新建任务 -->
+  <section class="screen" id="p2">
+    <div class="statusbar"><span>9:41</span><span>新建任务</span><span>82%</span></div>
+    <div class="appbar">
+      <div class="back" onclick="go('p1')">‹</div><h1>新建采收任务</h1>
+    </div>
+    <div class="body">
+      <div class="card">
+        <div class="label" style="margin-top:0">选择地块</div>
+        <div class="field" style="padding:8px 2px 2px">
+          <div class="map">🗺️</div>
+          <div style="flex:1"><b>2号棚</b><small>3.2 亩 · 樱桃番茄 · 距离 120m</small></div>
+          <div class="arr">›</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="label" style="margin-top:0">成熟度</div>
+        <div class="seg">
+          <button>只采红果</button>
+          <button class="on">红黄都采</button>
+          <button>自定义</button>
+        </div>
+        <div class="label">速度档位</div>
+        <div class="seg">
+          <button>慢</button>
+          <button class="on">标准</button>
+          <button>快</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="label" style="margin-top:0">启动前安全自检</div>
+        <div class="check"><span class="g">✓</span> 电量 82%，满足作业要求</div>
+        <div class="check"><span class="g">✓</span> 急停按钮正常</div>
+        <div class="check"><span class="g">✓</span> 通信信号良好</div>
+        <div class="check"><span class="g">✓</span> 果箱已清空，可采 320 个</div>
+      </div>
+    </div>
+    <div class="footer-btn"><button class="btn btn-primary" onclick="go('p3')">启动任务</button></div>
+  </section>
+
+  <!-- P3 实时监控 -->
+  <section class="screen" id="p3">
+    <div class="statusbar"><span>9:42</span><span>任务执行中</span><span>76%</span></div>
+    <div class="appbar">
+      <div class="back" onclick="go('p2')">‹</div><h1>2号棚 · 实时监控</h1><div class="sp"></div>
+      <div style="font-size:13px;cursor:pointer" onclick="go('p4')">结束任务</div>
+    </div>
+    <div class="body">
+      <div class="cam">
+        <div class="scan"></div>
+        <div class="live">● LIVE</div>
+        <div class="leaf" style="width:46px;height:46px;left:60px;top:90px"><em>红 98%</em></div>
+        <div class="leaf" style="width:38px;height:38px;left:180px;top:150px"><em>红 96%</em></div>
+        <div class="leaf" style="width:30px;height:30px;left:120px;top:200px;background:radial-gradient(circle at 35% 30%,#c9d66a,#7f9a3c)"><em>黄 88%</em></div>
+        <div class="leaf" style="width:44px;height:44px;left:250px;top:80px"><em>红 97%</em></div>
+        <div class="leaf" style="width:34px;height:34px;left:280px;top:190px"><em>红 95%</em></div>
+      </div>
+      <div class="alert">⚠️ <div>前方检测到掉落果实，设备已自动暂停，请清理后继续</div></div>
+      <div class="p3-stats">
+        <div class="stat"><b>64%</b><span>进度</span></div>
+        <div class="stat"><b>126</b><span>已采(个)</span></div>
+        <div class="stat"><b>18分</b><span>预计剩余</span></div>
+        <div class="stat"><b>标准</b><span>速度</span></div>
+      </div>
+      <div class="ctl">
+        <button class="btn pause" onclick="toast('已暂停，按继续恢复任务')">⏸<span>暂停</span></button>
+        <button class="btn stop" onclick="toast('急停指令已下发（0.3s）')">⏻</button>
+        <button class="btn voice" onclick="toast('正在与现场语音对讲…')">🎤<span>对讲</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- P4 数据 -->
+  <section class="screen" id="p4">
+    <div class="statusbar"><span>20:10</span><span>数据中心</span><span>68%</span></div>
+    <div class="appbar"><h1 style="font-size:20px">采收数据</h1></div>
+    <div class="body">
+      <div class="tabs-line"><b>日报</b><span>周报</span><span>月报</span></div>
+      <div class="grid4">
+        <div class="mini"><b>628</b><span>采收(个)</span></div>
+        <div class="mini"><b>12.6</b><span>作业(亩)</span></div>
+        <div class="mini"><b>3.1</b><span>耗电(度)</span></div>
+        <div class="mini"><b>4.2kg</b><span>减碳量</span></div>
+      </div>
+      <div class="card">
+        <div class="sec-title">本周采收趋势（个）</div>
+        <div class="bars">
+          <i style="height:42%"><em></em></i><i style="height:58%"></i><i style="height:50%"></i>
+          <i style="height:72%"></i><i class="on" style="height:88%"><em>628</em></i><i style="height:63%"></i><i style="height:76%"></i>
+        </div>
+        <div class="bars-x"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+      </div>
+      <div class="card save">
+        <div class="sec-title">成本节省（对比人工采收）</div>
+        <div style="display:flex;align-items:baseline;gap:10px">
+          <b class="big">¥819</b><span style="color:var(--gray);font-size:13px">本周节省 · 按每亩省 65 元口径估算</span>
+        </div>
+      </div>
+      <button class="btn btn-ghost" style="width:100%" onclick="toast('报告已生成（PDF），已保存并可分享')">📄 导出采收报告</button>
+    </div>
+    <div class="tabbar">
+      <button class="tab" onclick="go('p1')"><span class="ic">🏠</span>首页</button>
+      <button class="tab" onclick="go('p2')"><span class="ic">📋</span>任务</button>
+      <button class="tab active"><span class="ic">📊</span>数据</button>
+      <button class="tab" onclick="go('p5')"><span class="ic">🤖</span>AI助手</button>
+      <button class="tab" onclick="toast('作品集演示版：未设计该页')"><span class="ic">👤</span>我的</button>
+    </div>
+  </section>
+
+  <!-- P5 AI 助手 -->
+  <section class="screen" id="p5">
+    <div class="statusbar"><span>9:43</span><span>特查恩小助手</span><span>在线</span></div>
+    <div class="appbar"><h1 style="font-size:19px">🤖 特查恩小助手</h1></div>
+    <div class="body chat">
+      <div class="bubble b-ai">您好，我是特查恩小助手。机器人遇到什么问题了？您可以直接打字、发语音，也可以拍一张告警界面的照片发给我。</div>
+      <div class="bubble b-me">任务中途自己停了</div>
+      <div class="reply-card">
+        <div class="rh">【现象确认】任务执行中设备自动停车</div>
+        <div>第1步　查看App红色告警内容；<br>第2步　检查电量与前方是否有障碍物；<br>第3步　清理后点“继续任务”。</div>
+        <button class="to-human" onclick="toast('已为您转接人工工程师，将携带设备日志')">仍未解决，转人工</button>
+      </div>
+    </div>
+    <div class="powered">Powered by Coze · 特查恩小助手</div>
+    <div class="composer">
+      <span class="ic-btn">🎙️</span>
+      <input placeholder="描述问题，或发一张照片…" onkeydown="if(event.key==='Enter')toast('演示版：请使用正式版提问')">
+      <span class="ic-btn">📷</span>
+    </div>
+  </section>
+
+  <div class="toast" id="toast"></div>
+</div>
+<script>
+  function go(id){
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelector('#phone').scrollTop=0;
+  }
+  let t;
+  function toast(msg){
+    const el=document.getElementById('toast');
+    el.textContent=msg; el.classList.add('show');
+    clearTimeout(t); t=setTimeout(()=>el.classList.remove('show'),1800);
+  }
+  // 支持截图时按 hash 直达页面
+  if(new URLSearchParams(location.search).has('shot')) document.body.classList.add('shot');
+  const h=(location.hash||'').replace('#','');
+  if(['p1','p2','p3','p4','p5'].includes(h)) go(h);
+</script>
+</body>
+</html>
